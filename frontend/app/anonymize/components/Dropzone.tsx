@@ -28,7 +28,7 @@ export function Dropzone({ onFile }: { onFile: (file: File) => void }) {
       className={`flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-8 py-20 text-center transition-colors ${
         dragging
           ? "border-[#00c805] bg-[#00c805]/5"
-          : "border-zinc-300 hover:border-[#00c805] dark:border-zinc-700"
+          : "border-zinc-300 hover:border-[#00c805]"
       }`}
     >
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#00c805]/10 text-[#00c805]">
@@ -38,10 +38,10 @@ export function Dropzone({ onFile }: { onFile: (file: File) => void }) {
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
       </div>
-      <p className="text-lg font-semibold tracking-tight text-black dark:text-zinc-50">
+      <p className="text-lg font-semibold tracking-tight text-black">
         Drag &amp; drop your offer letter PDF
       </p>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-zinc-500">
         or click to browse. Files are processed entirely in your browser and never uploaded.
       </p>
       <input
