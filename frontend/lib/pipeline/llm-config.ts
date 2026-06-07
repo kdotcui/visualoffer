@@ -17,12 +17,12 @@ Extract the offer details from this PDF into the provided schema.
 
 Fields to extract:
 - companyName; description: Employer/company name (e.g. "Apple", "OpenAI").
-- jobTitle; description: Role title (e.g. "Software Engineer", "Account Executive").
+- jobTitle; description: Role title (e.g. "Software Engineer", "Account Executive"). 
 - level; description: Job level/band if stated (e.g. "IC3", "L4", "Senior").
 - location.city; description: City of the role.
 - location.state; description: State of the role.
 - location.country; description: Country (default "US" if absent).
-- location.workMode; description: One of onsite, hybrid, remote, unknown.
+- location.workMode; description: One of onsite (in-office, on-site), hybrid , remote , unknown.
 - employment.type; description: One of full_time, part_time, internship.
 - employment.offerDate; description: Offer date (YYYY-MM-DD).
 - employment.startDate; description: Start date (YYYY-MM-DD).
@@ -54,4 +54,11 @@ Parsing rules:
 - If equity is present, identify whether it is RSUs, stock options, or another equity type.
 - If equity value is not stated but share count is stated, return totalShares instead of guessing totalGrantValue.
 - Leave unknown optional fields absent rather than filling them with placeholders.
+- Do not include Additional Details in the jobTitle.
 `.trim();
+
+export const PARSER_MODELS = [
+  { id: "deepseek/deepseek-v4-pro", label: "DeepSeek V4 Pro" },
+  { id: "deepseek/deepseek-v4-flash", label: "DeepSeek V4 Flash" },
+  { id: "google/gemini-flash-latest", label: "Gemini Flash Latest" },
+];

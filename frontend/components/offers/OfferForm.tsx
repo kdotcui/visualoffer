@@ -14,7 +14,7 @@ import {
 } from "@/lib/schemas/offer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -159,7 +159,6 @@ export function OfferForm({
           <Field>
             <FieldLabel htmlFor="location.country">Country</FieldLabel>
             <Input id="location.country" readOnly {...register("location.country")} />
-            <FieldDescription>US only for the MVP.</FieldDescription>
           </Field>
 
           <Field>

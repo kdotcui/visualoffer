@@ -113,10 +113,7 @@ export function OfferPipeline() {
     <div className="grid gap-10">
       <section className="grid gap-5">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#167057]">
-            Offer intake
-          </p>
-          <h1 className="mt-2 max-w-3xl text-4xl font-bold tracking-tight text-black md:text-6xl">
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-black md:text-6xl">
             Turn compensation offers into comparable data.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
@@ -127,6 +124,7 @@ export function OfferPipeline() {
 
         <OfferUpload
           onParsed={(result) => {
+            console.log("Parsed PDF response before populating form:", result);
             const nextParser = {
               model: result.model,
               warnings: result.warnings,

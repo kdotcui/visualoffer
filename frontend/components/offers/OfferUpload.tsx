@@ -4,6 +4,14 @@ import { useRef, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import type { OfferFieldPath, PartialOfferData } from "@/lib/schemas/offer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PARSER_MODELS } from "@/lib/pipeline/llm-config";
 
 const MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024;
 
@@ -23,6 +31,7 @@ export function OfferUpload({ onParsed }: OfferUploadProps) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [model, setModel] = useState<string>(PARSER_MODELS[0].id);
 
   const parseFile = async (file: File) => {
     setError(null);
@@ -42,6 +51,7 @@ export function OfferUpload({ onParsed }: OfferUploadProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("model", model);
 
       const response = await fetch("/api/offers/parse", {
         method: "POST",
@@ -63,30 +73,48 @@ export function OfferUpload({ onParsed }: OfferUploadProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
+      <div
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
+          if (isParsing) return;
           const file = event.dataTransfer.files?.[0];
           if (file) void parseFile(file);
         }}
-        disabled={isParsing}
-        className="flex w-full items-center gap-3 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-3 text-left transition-colors hover:border-[#00c805] hover:bg-[#00c805]/5 disabled:cursor-not-allowed"
+        className="flex items-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 transition-colors hover:border-[#00c805] hover:bg-[#00c805]/5"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#00c805]/10 text-[#00c805]">
-          {isParsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-        </span>
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold text-black">
-            {isParsing ? "Parsing PDF..." : fileName ?? "Upload PDF for AI extraction"}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={isParsing}
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left disabled:cursor-not-allowed"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#00c805]/10 text-[#00c805]">
+            {isParsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
           </span>
-          <span className="block truncate text-xs text-zinc-500">
-            or fill in the details manually below
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-black">
+              {isParsing ? "Parsing PDF..." : fileName ?? "Upload PDF for AI extraction"}
+            </span>
+            <span className="block truncate text-xs text-zinc-500">
+              or fill in the details manually below
+            </span>
           </span>
-        </span>
-      </button>
+        </button>
+
+        <Select value={model} onValueChange={setModel} disabled={isParsing}>
+          <SelectTrigger className="mr-3 h-auto w-auto shrink-0 border-0 bg-transparent px-2 text-zinc-500 shadow-none hover:text-black focus:ring-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PARSER_MODELS.map(({ id, label }) => (
+              <SelectItem key={id} value={id}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <input
         ref={inputRef}

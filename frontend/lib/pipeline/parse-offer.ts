@@ -10,7 +10,7 @@ import {
 import {
   OFFER_PARSER_SYSTEM_PROMPT,
   OFFER_PARSER_USER_PROMPT,
-} from "@/lib/pipeline/LLM_PARSER_PROMPT";
+} from "@/lib/pipeline/llm-config";
 
 export type ParseOfferResult = {
   data: PartialOfferData;
@@ -48,22 +48,23 @@ async function extractPdfText(pdfBytes: Uint8Array): Promise<string> {
 export async function parseOfferPdf({
   pdfBytes,
   fileName,
+  model,
 }: {
   pdfBytes: Uint8Array;
   fileName: string;
+  model: string;
 }): Promise<ParseOfferResult> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error("OPENROUTER_API_KEY is not configured.");
   }
 
-  const modelId = "deepseek/deepseek-v4-flash";
   const openrouter = createOpenRouter({
     apiKey,
     appName: "visualoffer",
   });
 
-  const model = openrouter.chat(modelId, {
+  const parserModel = openrouter.chat(model, {
     plugins: [
       { id: "response-healing" },
     ],
@@ -76,7 +77,7 @@ export async function parseOfferPdf({
   }
 
   const result = await generateText({
-    model,
+    model: parserModel,
     output: Output.object({
       name: "OfferLetterData",
       description: "Structured job offer details extracted from an offer letter PDF.",
@@ -104,6 +105,6 @@ export async function parseOfferPdf({
     data,
     missingFields,
     warnings: missingFields.length > 0 ? ["Some required fields were not found in the PDF."] : [],
-    model: modelId,
+    model,
   };
 }
