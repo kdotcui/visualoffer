@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MissingFieldsSummary } from "@/components/offers/MissingFieldsSummary";
 
 type OfferFormProps = {
-  initialData?: OfferData;
+  initialData?: OfferDataInput;
   parserMissingFields?: OfferFieldPath[];
   submitLabel?: string;
   onSubmit: (data: OfferData) => void;

@@ -125,8 +125,8 @@ export const OfferFieldPathSchema = z.enum([
 
 export const StoredOfferSchema = z.object({
   id: z.string().min(1),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   source: OfferSourceSchema,
   parser: z
     .object({
@@ -170,7 +170,7 @@ export type StoredOffer = z.infer<typeof StoredOfferSchema>;
 export type OfferFieldPath = z.infer<typeof OfferFieldPathSchema>;
 export type OfferSource = z.infer<typeof OfferSourceSchema>;
 
-export const DEFAULT_OFFER_VALUES: OfferData = {
+export const DEFAULT_OFFER_VALUES: OfferDataInput = {
   companyName: "",
   jobTitle: "",
   location: {
@@ -184,11 +184,11 @@ export const DEFAULT_OFFER_VALUES: OfferData = {
   },
   cashCompensation: {
     currency: "USD",
-    baseSalary: 0,
+    baseSalary: "",
   },
 };
 
-export function mergeOfferDefaults(data?: PartialOfferData): OfferData {
+export function mergeOfferDefaults(data?: PartialOfferData): OfferDataInput {
   return {
     ...DEFAULT_OFFER_VALUES,
     ...data,

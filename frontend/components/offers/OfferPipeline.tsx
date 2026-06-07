@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { mergeOfferDefaults, type OfferData, type PartialOfferData, type StoredOffer } from "@/lib/schemas/offer";
+import {
+  mergeOfferDefaults,
+  type OfferData,
+  type OfferDataInput,
+  type PartialOfferData,
+  type StoredOffer,
+} from "@/lib/schemas/offer";
 import { useOffers } from "@/hooks/useOffers";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +18,7 @@ import { OfferForm } from "@/components/offers/OfferForm";
 import { OfferUpload } from "@/components/offers/OfferUpload";
 
 type ParseState = {
-  offer: OfferData;
+  offer: OfferDataInput;
   parser: NonNullable<StoredOffer["parser"]>;
 };
 
