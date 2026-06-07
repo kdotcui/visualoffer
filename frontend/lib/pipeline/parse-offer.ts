@@ -1,5 +1,6 @@
 import { generateText, Output } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import {
   PartialOfferDataSchema,
   getMissingFields,
@@ -18,11 +19,37 @@ export type ParseOfferResult = {
   model: string;
 };
 
+async function extractPdfText(pdfBytes: Uint8Array): Promise<string> {
+  const loadingTask = getDocument({ data: pdfBytes.slice() });
+  const doc = await loadingTask.promise;
+  const pages: string[] = [];
+
+  try {
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map((item) => ("str" in item ? item.str : ""))
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (pageText) {
+        pages.push(pageText);
+      }
+    }
+  } finally {
+    await loadingTask.destroy();
+  }
+
+  return pages.join("\n\n").trim();
+}
+
 export async function parseOfferPdf({
-  pdfDataUrl,
+  pdfBytes,
   fileName,
 }: {
-  pdfDataUrl: string;
+  pdfBytes: Uint8Array;
   fileName: string;
 }): Promise<ParseOfferResult> {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -30,7 +57,7 @@ export async function parseOfferPdf({
     throw new Error("OPENROUTER_API_KEY is not configured.");
   }
 
-  const modelId = "google/gemini-3.1-flash-lite";
+  const modelId = "deepseek/deepseek-v4-flash";
   const openrouter = createOpenRouter({
     apiKey,
     appName: "visualoffer",
@@ -38,11 +65,15 @@ export async function parseOfferPdf({
 
   const model = openrouter.chat(modelId, {
     plugins: [
-      { id: "file-parser", pdf: { engine: "native" } },
       { id: "response-healing" },
     ],
     structuredOutputs: { strict: false },
   });
+
+  const offerText = await extractPdfText(pdfBytes);
+  if (!offerText) {
+    throw new Error("No text could be extracted from the PDF (it may be a scanned/image-only document).");
+  }
 
   const result = await generateText({
     model,
@@ -59,13 +90,7 @@ export async function parseOfferPdf({
         content: [
           {
             type: "text",
-            text: OFFER_PARSER_USER_PROMPT,
-          },
-          {
-            type: "file",
-            data: pdfDataUrl,
-            mediaType: "application/pdf",
-            filename: fileName,
+            text: `${OFFER_PARSER_USER_PROMPT}\n\nFile name: ${fileName}\n\n--- OFFER LETTER TEXT ---\n${offerText}`,
           },
         ],
       },

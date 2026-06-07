@@ -15,6 +15,38 @@ Prefer partial structured data over guessed complete data.
 export const OFFER_PARSER_USER_PROMPT = `
 Extract the offer details from this PDF into the provided schema.
 
+Fields to extract:
+- companyName; description: Employer/company name (e.g. "Apple", "OpenAI").
+- jobTitle; description: Role title (e.g. "Software Engineer", "Account Executive").
+- level; description: Job level/band if stated (e.g. "IC3", "L4", "Senior").
+- location.city; description: City of the role.
+- location.state; description: State of the role.
+- location.country; description: Country (default "US" if absent).
+- location.workMode; description: One of onsite, hybrid, remote, unknown.
+- employment.type; description: One of full_time, part_time, internship.
+- employment.offerDate; description: Offer date (YYYY-MM-DD).
+- employment.startDate; description: Start date (YYYY-MM-DD).
+- cashCompensation.currency; description: Currency (default "USD").
+- cashCompensation.baseSalary; description: Annual base salary (number).
+- cashCompensation.targetAnnualBonusPercentage; description: Target annual bonus as plain number.
+- cashCompensation.signOnBonus; description: Sign-on bonus amount.
+- cashCompensation.additionalBonus; description: Any other bonus amount.
+- cashCompensation.signOnPayoutTerms; description: Sign-on payout terms in prose.
+- equityCompensation.equityType; description: One of rsu, stock_options, other.
+- equityCompensation.totalGrantValue; description: Total equity grant value.
+- equityCompensation.totalShares; description: Total shares granted (use if value absent).
+- equityCompensation.vestingScheduleYears; description: Vesting duration in years.
+- equityCompensation.cliffMonths; description: Cliff length in months.
+- equityCompensation.vestingFrequency; description: One of monthly, quarterly, semi_annually, annually.
+- equityCompensation.vestingStartDate; description: Vesting start date (YYYY-MM-DD).
+- equityCompensation.notes; description: Equity notes.
+- benefits.match401k; description: 401k match details.
+- benefits.healthInsurance; description: Health insurance details.
+- benefits.relocation; description: Relocation details.
+- benefits.paidTimeOff; description: PTO details.
+- benefits.notes; description: Benefits notes.
+- notes; description: Any other relevant offer notes.
+
 Parsing rules:
 - Return numeric compensation amounts as numbers without commas or currency symbols.
 - Convert percentages to plain numbers, for example 15% becomes 15.

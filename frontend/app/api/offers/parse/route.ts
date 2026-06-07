@@ -22,9 +22,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "PDF must be 10MB or smaller." }, { status: 400 });
     }
 
-    const bytes = Buffer.from(await file.arrayBuffer());
-    const pdfDataUrl = `data:application/pdf;base64,${bytes.toString("base64")}`;
-    const result = await parseOfferPdf({ pdfDataUrl, fileName: file.name || "offer-letter.pdf" });
+    const pdfBytes = new Uint8Array(await file.arrayBuffer());
+    const result = await parseOfferPdf({ pdfBytes, fileName: file.name || "offer-letter.pdf" });
 
     return NextResponse.json(result);
   } catch (error) {
