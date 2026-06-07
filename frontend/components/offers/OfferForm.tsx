@@ -276,79 +276,83 @@ export function OfferForm({
             <FieldError>{errors.equityCompensation?.equityType?.message}</FieldError>
           </Field>
 
-          <Field>
-            <FieldLabel htmlFor="equityCompensation.totalGrantValue">Total grant value</FieldLabel>
-            <Input
-              id="equityCompensation.totalGrantValue"
-              placeholder="200000"
-              {...numberInputProps()}
-              {...register("equityCompensation.totalGrantValue")}
-            />
-            <FieldError>{errors.equityCompensation?.totalGrantValue?.message}</FieldError>
-          </Field>
+          {watchedValues.equityCompensation?.equityType && (
+            <>
+              <Field>
+                <FieldLabel htmlFor="equityCompensation.totalGrantValue">Total grant value</FieldLabel>
+                <Input
+                  id="equityCompensation.totalGrantValue"
+                  placeholder="200000"
+                  {...numberInputProps()}
+                  {...register("equityCompensation.totalGrantValue")}
+                />
+                <FieldError>{errors.equityCompensation?.totalGrantValue?.message}</FieldError>
+              </Field>
 
-          <Field>
-            <FieldLabel htmlFor="equityCompensation.totalShares">Total shares</FieldLabel>
-            <Input
-              id="equityCompensation.totalShares"
-              placeholder="500"
-              {...numberInputProps()}
-              {...register("equityCompensation.totalShares")}
-            />
-          </Field>
+              <Field>
+                <FieldLabel htmlFor="equityCompensation.totalShares">Total shares</FieldLabel>
+                <Input
+                  id="equityCompensation.totalShares"
+                  placeholder="500"
+                  {...numberInputProps()}
+                  {...register("equityCompensation.totalShares")}
+                />
+              </Field>
 
-          <Field>
-            <FieldLabel htmlFor="equityCompensation.vestingScheduleYears">Vesting years</FieldLabel>
-            <Input
-              id="equityCompensation.vestingScheduleYears"
-              placeholder="4"
-              {...numberInputProps()}
-              {...register("equityCompensation.vestingScheduleYears")}
-            />
-          </Field>
+              <Field>
+                <FieldLabel htmlFor="equityCompensation.vestingScheduleYears">Vesting years</FieldLabel>
+                <Input
+                  id="equityCompensation.vestingScheduleYears"
+                  placeholder="4"
+                  {...numberInputProps()}
+                  {...register("equityCompensation.vestingScheduleYears")}
+                />
+              </Field>
 
-          <Field>
-            <FieldLabel htmlFor="equityCompensation.cliffMonths">Cliff months</FieldLabel>
-            <Input
-              id="equityCompensation.cliffMonths"
-              placeholder="12"
-              {...numberInputProps()}
-              {...register("equityCompensation.cliffMonths")}
-            />
-          </Field>
+              <Field>
+                <FieldLabel htmlFor="equityCompensation.cliffMonths">Cliff months</FieldLabel>
+                <Input
+                  id="equityCompensation.cliffMonths"
+                  placeholder="12"
+                  {...numberInputProps()}
+                  {...register("equityCompensation.cliffMonths")}
+                />
+              </Field>
 
-          <Field>
-            <FieldLabel htmlFor="equityCompensation.vestingFrequency">Vesting frequency</FieldLabel>
-            <Controller
-              control={control}
-              name="equityCompensation.vestingFrequency"
-              render={({ field }) => (
-                <Select value={field.value ?? "none"} onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}>
-                  <SelectTrigger id="equityCompensation.vestingFrequency">
-                    <SelectValue placeholder="Select frequency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
-                    <SelectItem value="semi_annually">Semi-annually</SelectItem>
-                    <SelectItem value="annually">Annually</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
+              <Field>
+                <FieldLabel htmlFor="equityCompensation.vestingFrequency">Vesting frequency</FieldLabel>
+                <Controller
+                  control={control}
+                  name="equityCompensation.vestingFrequency"
+                  render={({ field }) => (
+                    <Select value={field.value ?? "none"} onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}>
+                      <SelectTrigger id="equityCompensation.vestingFrequency">
+                        <SelectValue placeholder="Select frequency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                        <SelectItem value="semi_annually">Semi-annually</SelectItem>
+                        <SelectItem value="annually">Annually</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
 
-          <Field>
-            <FieldLabel htmlFor="equityCompensation.vestingStartDate">Vesting start date</FieldLabel>
-            <Input id="equityCompensation.vestingStartDate" type="date" {...register("equityCompensation.vestingStartDate")} />
-            <FieldError>{errors.equityCompensation?.vestingStartDate?.message}</FieldError>
-          </Field>
+              <Field>
+                <FieldLabel htmlFor="equityCompensation.vestingStartDate">Vesting start date</FieldLabel>
+                <Input id="equityCompensation.vestingStartDate" type="date" {...register("equityCompensation.vestingStartDate")} />
+                <FieldError>{errors.equityCompensation?.vestingStartDate?.message}</FieldError>
+              </Field>
 
-          <Field className="md:col-span-2">
-            <FieldLabel htmlFor="equityCompensation.notes">Equity notes</FieldLabel>
-            <Textarea id="equityCompensation.notes" placeholder="Refreshers, exercise terms, or unusual vesting terms" {...register("equityCompensation.notes")} />
-          </Field>
+              <Field className="md:col-span-2">
+                <FieldLabel htmlFor="equityCompensation.notes">Equity notes</FieldLabel>
+                <Textarea id="equityCompensation.notes" placeholder="Refreshers, exercise terms, or unusual vesting terms" {...register("equityCompensation.notes")} />
+              </Field>
+            </>
+          )}
         </CardContent>
       </Card>
 
