@@ -38,12 +38,12 @@ export function Controls({
   };
 
   return (
-    <div className="flex flex-col gap-6 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-[#121212]">
+    <div className="flex flex-col gap-6 rounded-2xl border border-zinc-200 bg-white p-5">
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-semibold text-black dark:text-zinc-50">
+        <label className="text-sm font-semibold text-black">
           Redact specific text
         </label>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-zinc-500">
           Add your name or any exact value to black out wherever it appears.
         </p>
         <div className="flex gap-2">
@@ -57,12 +57,12 @@ export function Controls({
               }
             }}
             placeholder="e.g. Jane Doe"
-            className="flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-[#00c805] dark:border-zinc-700 dark:text-zinc-50"
+            className="flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-[#00c805]"
           />
           <button
             type="button"
             onClick={addValue}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-black dark:hover:bg-zinc-300"
+            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
           >
             Add
           </button>
@@ -72,14 +72,14 @@ export function Controls({
             {values.map((v) => (
               <span
                 key={v}
-                className="flex items-center gap-1.5 rounded-full bg-[#00c805]/10 px-3 py-1 text-xs font-medium text-[#167057] dark:text-[#00c805]"
+                className="flex items-center gap-1.5 rounded-full bg-[#00c805]/10 px-3 py-1 text-xs font-medium text-[#167057]"
               >
                 {v}
                 <button
                   type="button"
                   aria-label={`Remove ${v}`}
                   onClick={() => onValuesChange(values.filter((x) => x !== v))}
-                  className="text-[#167057]/60 hover:text-[#167057] dark:text-[#00c805]/60 dark:hover:text-[#00c805]"
+                  className="text-[#167057]/60 hover:text-[#167057]"
                 >
                   ✕
                 </button>
@@ -90,7 +90,7 @@ export function Controls({
       </div>
 
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-semibold text-black dark:text-zinc-50">
+        <span className="text-sm font-semibold text-black">
           Auto-detect
         </span>
         <div className="grid grid-cols-2 gap-2">
@@ -103,8 +103,8 @@ export function Controls({
                 onClick={() => onDetectChange({ ...detect, [cat.key]: !on })}
                 className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${
                   on
-                    ? "border-[#00c805] bg-[#00c805]/10 text-black dark:text-zinc-50"
-                    : "border-zinc-300 text-zinc-500 dark:border-zinc-700"
+                    ? "border-[#00c805] bg-[#00c805]/10 text-black"
+                    : "border-zinc-300 text-zinc-500"
                 }`}
               >
                 {cat.label}
@@ -119,8 +119,8 @@ export function Controls({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-800">
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4">
+        <p className="text-xs text-zinc-500">
           {boxCount} region{boxCount === 1 ? "" : "s"} marked for redaction. Drag on a page to add a box; click a box to remove it.
         </p>
         <button
@@ -134,7 +134,7 @@ export function Controls({
         <button
           type="button"
           onClick={onReset}
-          className="text-sm text-zinc-500 underline-offset-2 hover:underline dark:text-zinc-400"
+          className="text-sm text-zinc-500 underline-offset-2 hover:underline"
         >
           Start over with a different file
         </button>

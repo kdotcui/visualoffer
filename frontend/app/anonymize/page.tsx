@@ -125,19 +125,19 @@ export default function AnonymizePage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center bg-zinc-50 px-4 py-12 font-sans dark:bg-black">
+    <div className="flex flex-1 flex-col items-center bg-zinc-50 px-4 py-12 font-sans">
       <div className="w-full max-w-5xl">
         <header className="mb-8 flex flex-col gap-2">
           <Link
             href="/"
-            className="w-fit text-sm text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-zinc-50"
+            className="w-fit text-sm text-zinc-500 hover:text-black"
           >
             ← Back
           </Link>
-          <h1 className="text-3xl font-bold tracking-tight text-black dark:text-zinc-50">
+          <h1 className="text-3xl font-bold tracking-tight text-black">
             Anonymize your offer letter
           </h1>
-          <p className="max-w-2xl text-zinc-600 dark:text-zinc-400">
+          <p className="max-w-2xl text-zinc-600">
             Drop in a PDF and we&apos;ll black out sensitive details — name, date of birth, SSN,
             and more. Redacted text is permanently flattened into an image, so it can never be
             selected, copied, or recovered. Everything happens locally in your browser.
@@ -148,7 +148,7 @@ export default function AnonymizePage() {
 
         {status === "error" && (
           <div className="flex flex-col items-start gap-4">
-            <p className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            <p className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-600">
               {error}
             </p>
             <button
@@ -162,9 +162,9 @@ export default function AnonymizePage() {
         )}
 
         {status === "loading" && (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-300 py-20 dark:border-zinc-700">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-300 py-20">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-[#00c805]" />
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Rendering {fileName}…</p>
+            <p className="text-sm text-zinc-500">Rendering {fileName}…</p>
           </div>
         )}
 

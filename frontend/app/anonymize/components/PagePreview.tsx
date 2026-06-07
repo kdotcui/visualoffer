@@ -57,7 +57,7 @@ export function PagePreview({
         start.current = null;
         setDraft(null);
       }}
-      className="relative w-full cursor-crosshair touch-none select-none overflow-hidden rounded-lg border border-zinc-200 shadow-sm dark:border-zinc-800"
+      className="relative w-full cursor-crosshair touch-none select-none overflow-hidden rounded-lg border border-zinc-200 shadow-sm"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={url} alt={`Page ${index + 1}`} className="block w-full" draggable={false} />
