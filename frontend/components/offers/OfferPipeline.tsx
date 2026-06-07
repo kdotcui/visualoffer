@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import {
+  DEFAULT_OFFER_VALUES,
   mergeOfferDefaults,
   type OfferData,
   type OfferDataInput,
@@ -10,17 +11,12 @@ import {
   type StoredOffer,
 } from "@/lib/schemas/offer";
 import { useOffers } from "@/hooks/useOffers";
+import { clearDraft, readDraft, writeDraft } from "@/lib/storage/draft";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OfferForm } from "@/components/offers/OfferForm";
 import { OfferUpload } from "@/components/offers/OfferUpload";
-
-type ParseState = {
-  offer: OfferDataInput;
-  parser: NonNullable<StoredOffer["parser"]>;
-};
 
 function currency(value: number | undefined) {
   if (value === undefined) return "Not set";
@@ -74,71 +70,85 @@ function OfferCard({ offer, onDelete }: { offer: StoredOffer; onDelete: () => vo
 
 export function OfferPipeline() {
   const { offers, hydrated, createOffer, removeOffer } = useOffers();
-  const [parseState, setParseState] = useState<ParseState | null>(null);
+  const [formSeed, setFormSeed] = useState<OfferDataInput>(DEFAULT_OFFER_VALUES);
+  const [uploaded, setUploaded] = useState(false);
+  const [parser, setParser] = useState<StoredOffer["parser"] | undefined>(undefined);
   const [status, setStatus] = useState<string | null>(null);
 
-  const save = (offer: OfferData, source: "manual" | "ai", parser?: StoredOffer["parser"]) => {
+  const readyRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const draft = readDraft();
+      if (draft) {
+        setFormSeed(draft.offer);
+        setUploaded(draft.uploaded);
+        setParser(draft.parser);
+      }
+      readyRef.current = true;
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const persistDraft = (values: PartialOfferData) => {
+    if (!readyRef.current) return;
+    writeDraft({ offer: values as OfferDataInput, uploaded, parser });
+  };
+
+  const save = (offer: OfferData) => {
+    const source = uploaded ? "ai" : "manual";
     const record = createOffer({ offer, source, parser });
+    clearDraft();
+    setUploaded(false);
+    setParser(undefined);
+    setFormSeed(DEFAULT_OFFER_VALUES);
     setStatus(`Saved ${record.offer.companyName}.`);
   };
 
   return (
     <div className="grid gap-10">
-      <Tabs defaultValue="manual" className="w-full">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#167057]">
-              Offer intake
-            </p>
-            <h1 className="mt-2 max-w-3xl text-4xl font-bold tracking-tight text-black md:text-6xl">
-              Turn compensation offers into comparable data.
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
-              Enter an offer manually or upload a PDF for AI parsing. Both paths land in the same
-              review form before saving locally in this browser.
-            </p>
-          </div>
-          <TabsList>
-            <TabsTrigger value="manual">Manual</TabsTrigger>
-            <TabsTrigger value="upload">Upload PDF</TabsTrigger>
-          </TabsList>
+      <section className="grid gap-5">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#167057]">
+            Offer intake
+          </p>
+          <h1 className="mt-2 max-w-3xl text-4xl font-bold tracking-tight text-black md:text-6xl">
+            Turn compensation offers into comparable data.
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600">
+            Upload a PDF for AI extraction or fill in the details manually. Your progress is saved in
+            this browser as you go.
+          </p>
         </div>
 
-        <TabsContent value="manual">
-          <OfferForm
-            submitLabel="Save manual offer"
-            onSubmit={(offer) => save(offer, "manual")}
-          />
-        </TabsContent>
+        <OfferUpload
+          onParsed={(result) => {
+            const nextParser = {
+              model: result.model,
+              warnings: result.warnings,
+              missingFields: result.missingFields,
+            };
+            const nextOffer = mergeOfferDefaults(result.data as PartialOfferData);
+            setFormSeed(nextOffer);
+            setUploaded(true);
+            setParser(nextParser);
+            writeDraft({ offer: nextOffer, uploaded: true, parser: nextParser });
+            setStatus("PDF parsed. Review the extracted fields before saving.");
+          }}
+        />
 
-        <TabsContent value="upload" className="grid gap-5">
-          <OfferUpload
-            onParsed={(result) => {
-              setParseState({
-                offer: mergeOfferDefaults(result.data as PartialOfferData),
-                parser: {
-                  model: result.model,
-                  warnings: result.warnings,
-                  missingFields: result.missingFields,
-                },
-              });
-              setStatus("PDF parsed. Review the extracted fields before saving.");
-            }}
-          />
-
-          {parseState && (
-            <OfferForm
-              initialData={parseState.offer}
-              parserMissingFields={parseState.parser.missingFields}
-              submitLabel="Save parsed offer"
-              onSubmit={(offer) => {
-                save(offer, "ai", parseState.parser);
-                setParseState(null);
-              }}
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+        <OfferForm
+          initialData={formSeed}
+          parserMissingFields={parser?.missingFields ?? []}
+          submitLabel="Save offer"
+          onChange={persistDraft}
+          onSubmit={save}
+        />
+      </section>
 
       {status && (
         <div className="rounded-2xl border border-[#00c805]/30 bg-[#00c805]/10 px-4 py-3 text-sm font-medium text-[#167057]">

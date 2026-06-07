@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,6 +24,7 @@ type OfferFormProps = {
   initialData?: OfferDataInput;
   parserMissingFields?: OfferFieldPath[];
   submitLabel?: string;
+  onChange?: (values: PartialOfferData) => void;
   onSubmit: (data: OfferData) => void;
 };
 
@@ -40,6 +41,7 @@ export function OfferForm({
   initialData = DEFAULT_OFFER_VALUES,
   parserMissingFields = [],
   submitLabel = "Save offer",
+  onChange,
   onSubmit,
 }: OfferFormProps) {
   const {
@@ -53,17 +55,30 @@ export function OfferForm({
     defaultValues: initialData,
   });
   const watchedValues = useWatch({ control });
+  const [attemptedSave, setAttemptedSave] = useState(false);
 
   useEffect(() => {
     reset(initialData);
   }, [initialData, reset]);
 
+  useEffect(() => {
+    onChange?.(watchedValues as PartialOfferData);
+  }, [watchedValues, onChange]);
+
   const currentMissing = getMissingFields(watchedValues as PartialOfferData);
   const missingFields = Array.from(new Set([...parserMissingFields, ...currentMissing]));
 
+  const submit = handleSubmit(
+    (data) => {
+      setAttemptedSave(false);
+      onSubmit(data);
+    },
+    () => setAttemptedSave(true),
+  );
+
   return (
-    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-      <MissingFieldsSummary fields={missingFields} />
+    <form className="flex flex-col gap-5" onSubmit={submit}>
+      {attemptedSave && <MissingFieldsSummary fields={missingFields} />}
 
       <Card>
         <CardHeader>

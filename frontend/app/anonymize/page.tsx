@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import type { DetectOptions, RedactionBox } from "@/lib/pipeline/anonymize-pdf";
@@ -29,6 +29,7 @@ export default function AnonymizePage() {
 
   const bytesRef = useRef<ArrayBuffer | null>(null);
   const docRef = useRef<PDFDocumentProxy | null>(null);
+  const detectRunRef = useRef(0);
 
   const reset = () => {
     setStatus("idle");
@@ -66,6 +67,7 @@ export default function AnonymizePage() {
       }
       setPages(images);
       setStatus("ready");
+      void runDetection(values, detect);
     } catch (err) {
       console.error(err);
       setError("Could not read that PDF. It may be encrypted or corrupted.");
@@ -73,25 +75,31 @@ export default function AnonymizePage() {
     }
   };
 
-  // Re-detect whenever inputs change, preserving manually drawn boxes.
-  useEffect(() => {
+  // Re-run auto-detection, preserving manually drawn boxes. A run token guards
+  // against overlapping runs from rapid toggles clobbering newer results.
+  const runDetection = async (nextValues: string[], nextDetect: DetectOptions) => {
     const doc = docRef.current;
-    if (status !== "ready" || !doc) return;
-    let cancelled = false;
-    (async () => {
-      const mod = await loadModule();
-      const found: RedactionBox[] = [];
-      for (let i = 0; i < doc.numPages; i++) {
-        const page = await doc.getPage(i + 1);
-        found.push(...(await mod.extractBoxes(page, i, { values, detect })));
-      }
-      if (cancelled) return;
-      setBoxes((prev) => [...prev.filter((b) => b.kind === "manual"), ...found]);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [values, detect, status]);
+    if (!doc) return;
+    const runId = ++detectRunRef.current;
+    const mod = await loadModule();
+    const found: RedactionBox[] = [];
+    for (let i = 0; i < doc.numPages; i++) {
+      const page = await doc.getPage(i + 1);
+      found.push(...(await mod.extractBoxes(page, i, { values: nextValues, detect: nextDetect })));
+    }
+    if (runId !== detectRunRef.current) return;
+    setBoxes((prev) => [...prev.filter((b) => b.kind === "manual"), ...found]);
+  };
+
+  const handleValuesChange = (next: string[]) => {
+    setValues(next);
+    void runDetection(next, detect);
+  };
+
+  const handleDetectChange = (next: DetectOptions) => {
+    setDetect(next);
+    void runDetection(values, next);
+  };
 
   const addBox = (box: { page: number; x: number; y: number; w: number; h: number }) => {
     setBoxes((prev) => [
@@ -185,9 +193,9 @@ export default function AnonymizePage() {
             <div className="lg:sticky lg:top-6 lg:h-fit">
               <Controls
                 values={values}
-                onValuesChange={setValues}
+                onValuesChange={handleValuesChange}
                 detect={detect}
-                onDetectChange={setDetect}
+                onDetectChange={handleDetectChange}
                 onDownload={handleDownload}
                 onReset={reset}
                 boxCount={boxes.length}
